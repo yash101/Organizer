@@ -1,0 +1,2 @@
+#I use Vim to do the text editing. However, it leaves these swap files everywhere. Git: Don't pick these up!
+*.swp
