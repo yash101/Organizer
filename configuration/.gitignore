@@ -1,2 +1,2 @@
 #The database configuration file; We don't want our database credentials to be leaking out into the public!
-database.cfg
+database.json
