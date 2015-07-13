@@ -16,6 +16,7 @@
 
 #include <cstring>
 #include <thread>
+#include <sstream>
 
 #include "../stringproc.h"
 
@@ -120,6 +121,10 @@ int dev::TcpServer::start(int port)
       continue;
     }
 
+    //Set the pointer to the server in the TCP socket session object so that the user
+    //has external access to this object
+    session->server = this;
+
     //Handle the connection. Have fun :)
     std::thread(&dev::TcpServer::listenerProxy, this, session).detach();
   }
@@ -127,16 +132,16 @@ int dev::TcpServer::start(int port)
 
 void dev::TcpServer::listenerProxy(dev::TcpServerSession* connection)
 {
+  //To catch any exceptions encountered. If any exceptions get past, the program will crash
+  // (BAD). Note that failure is very common because an exception is thrown whenever there is
+  // a connection error!
   try
   {
     //Let the user play with the connection
     worker(connection);
   }
-    //Catch any exceptions incurred by the worker proces to allow garbage collection
   catch(std::exception& e)
-  {
-    delete connection;
-  }
+  {}
 
   //Deallocate the connection structure. We hate runaway RAM ;)
   delete connection;
@@ -159,10 +164,7 @@ dev::TcpServer::~TcpServer()
   close(_fd);
 }
 
-
 //!----------Session functions. Random other clutter----------
-
-
 
 dev::TcpServerSession::TcpServerSession()
 {
@@ -181,87 +183,189 @@ dev::TcpServerSession::~TcpServerSession()
 
 int dev::TcpServerSession::put(char byte)
 {
-  int o = write(_fd, &byte, sizeof(byte));
+  int o = ::send(_fd, &byte, 1, MSG_NOSIGNAL);
   if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
   return o;
 }
 
 int dev::TcpServerSession::put(std::string string)
 {
-  int o = write(_fd, string.c_str(), string.size());
+  int o = ::send(_fd, string.c_str(), string.size(), MSG_NOSIGNAL);
   if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
-  return 0;
+  return o;
 }
 
-char dev::TcpServerSession::read()
+char dev::TcpServerSession::get()
 {
-  char x;
-  if(::read(_fd, (void*) &x, sizeof(char)) < 0) throw dev::TcpServerException(E_BAD_READ, "Unable to read from socket");
-  return (int) x;
+  char ch;
+  int o = ::recv(_fd, &ch, 1, 0);
+  if(o < 0) throw dev::TcpServerException(E_BAD_READ, "Unable to read from socket");
+  return ch;
 }
 
-std::string dev::TcpServerSession::read(int maxlen)
+std::string dev::TcpServerSession::get(int mxlength)
 {
-  char* str = new char[maxlen + 1];
-  str[maxlen + 1] = '\0';
-  if(::read(_fd, (void*) str, maxlen) < 0)
+  //Allocate space for a C String
+  char* ch = new char[mxlength + 1];
+  //Read some data
+  int o = ::recv(_fd, ch, mxlength, 0);
+
+  if(o < 0)
   {
-    delete[] str;
+    delete[] ch;
+    throw dev::TcpServerException(E_BAD_READ, "Unable to read from socket");
   }
-  std::string x = dev::toString(str);
-  delete[] str;
-  return x;
+
+  //Place the NULL terminator (for safety and prevention of ugly SEGFAULTS!!!)
+  ch[o] = '\0';
+  std::string ret = dev::toString(ch);
+  //GC
+  delete[] ch;
+  return ret;
 }
 
-std::string dev::TcpServerSession::readline(char end)
+std::string dev::TcpServerSession::readLine(char end)
 {
-  std::string out;
-  try
+  std::stringstream str;
+  while(true)
   {
-    while(true)
+    char ch;
+    int x = ::recv(_fd, &ch, 1, 0);
+    if(ch == end) return str.str();
+    if(x < 0) return str.str();
+    str << ch;
+  }
+}
+
+std::string dev::TcpServerSession::readLine(std::string end)
+{
+  std::string line = "";
+  while(true)
+  {
+    if(line.size() >= end.size())
     {
-      char c = read();
-      if(c == end)
+      if(line.substr(line.size() - (end.size() - 1), line.size() - 1) == end)
       {
-        return out;
-      }
-      else
-      {
-        out += c;
+        break;
       }
     }
-
-    return out;
+    line += (char) get();
   }
-  catch(std::exception& e)
-  {
-    return out;
-  }
+  return line = line.substr(0, line.size() - (end.size() + 1));
 }
 
-std::string dev::TcpServerSession::readline(std::string end)
+std::string dev::TcpServerSession::readLine(std::vector<std::string> end)
 {
-  std::string out;
-  try
+  if(end.size() == 0) return "";
+
+  size_t len = end[0].size();
+  for(size_t i = 0; i < end.size(); i++)
   {
-    while(true)
+    if(end[i].size() != len) return "";
+  }
+
+  std::string line = "";
+  while(true)
+  {
+    if(line.size() >= len)
     {
-      if(out.size() >= end.size())
+      for(size_t i = 0; i < end.size(); i++)
       {
-        std::string tmp = out.substr(out.size() - end.size(), out.size());
-        if(out.substr(out.size() - end.size(), out.size()) == end)
+        std::string x = line.substr(line.size() - (len - 1) - 1, line.size());
+        if(x == end[i])
         {
-          return out.substr(0, out.size() - end.size());
+          return line.substr(0, line.size() - len);
         }
       }
-      out += (char) read();
     }
-  }
-  catch(std::exception& e)
-  {
-    return out;
+    line += (char) get();
   }
 }
+
+//int dev::TcpServerSession::put(char byte)
+//{
+//  int o = write(_fd, &byte, sizeof(byte));
+//  if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
+//  return o;
+//}
+
+//int dev::TcpServerSession::put(std::string string)
+//{
+//  int o = write(_fd, string.c_str(), string.size());
+//  if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
+//  return 0;
+//}
+
+//char dev::TcpServerSession::read()
+//{
+//  return this->read(1)[0];
+//}
+
+//std::string dev::TcpServerSession::read(int length)
+//{
+//  char* x = new char[length];         //Allocate some memory to read into
+//  //Attempt to read from the socket. Throw and exception otherwise
+//  if(recv(_fd, x, length, 0) < 0)
+//  {
+//    throw dev::TcpServerException(E_BAD_READ, "Unable to read from socket!");
+//  }
+//  //Convert what we recieved to an std::string so we have automatic GC.
+//  std::string z = dev::toString(x);
+//  //Deallocate the memory that we previously allocated
+//  delete[] x;
+//  //Return the string!
+//  return z;
+//}
+
+//std::string dev::TcpServerSession::readline(char end)
+//{
+//  std::string out;
+//  try
+//  {
+//    while(true)
+//    {
+//      char c = read(1)[0];
+//      if(c == end)
+//      {
+//        return out;
+//      }
+//      else
+//      {
+//        out += c;
+//      }
+//    }
+
+//    return out;
+//  }
+//  catch(std::exception& e)
+//  {
+//    return out;
+//  }
+//}
+
+//std::string dev::TcpServerSession::readline(std::string end)
+//{
+//  std::string out;
+//  try
+//  {
+//    while(true)
+//    {
+//      if(out.size() >= end.size())
+//      {
+//        if(!strcmp(out.substr(out.size() - end.size(), out.size()).c_str(), end.c_str()))
+//        {
+//          return out.substr(0, out.size() - end.size());
+//        }
+//      }
+//      char ch = (char) read(1)[0];
+//      out += ch;
+//    }
+//  }
+//  catch(std::exception& e)
+//  {
+//    return out;
+//  }
+//}
 
 dev::TcpServerException::TcpServerException() :
   _code(0),

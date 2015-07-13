@@ -2,6 +2,7 @@
 #define TCP_SOCKET_H
 #include <string>
 #include <exception>
+#include <vector>
 namespace dev
 {
   //@"description": "A multi-threaded TCP socket server"
@@ -46,16 +47,18 @@ namespace dev
   public:
     int _fd;
     void* _address;
+    dev::TcpServer* server;
     
     TcpServerSession();
     ~TcpServerSession();
 
     int put(char byte);
     int put(std::string string);
-    char read();
-    std::string read(int mxlength);
-    std::string readline(char end);
-    std::string readline(std::string end);
+    char get();
+    std::string get(int mxlength);
+    std::string readLine(char end);
+    std::string readLine(std::string end);
+    std::string readLine(std::vector<std::string> end);
 
     void closeSocket();
   };

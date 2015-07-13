@@ -44,34 +44,36 @@ bool dev::contains(char find, std::string dict)
   return false;
 }
 
-std::string dev::pad(std::string in)
+std::string dev::pad(std::string str)
 {
-  return dev::lpad(dev::rpad(in));
+  std::string in = str;
+  size_t i = 0;
+  while(isspace(in[i]) && i <= in.size()) i++;
+  in = in.substr(i, in.size());
+
+  i = in.size();
+  while(isspace(in[i]) && i != 0) i--;
+  in = in.substr(0, i);
+
+  return str;
+//  return dev::lpad(dev::rpad(in));
 }
 
 std::string dev::lpad(std::string in)
 {
-  size_t i = 0;
   for(size_t i = 0; i < in.size(); i++)
   {
-    if(!isspace(in[i]))
-    {
-      return in.substr(i - 1, in.size());
-    }
+    if(!isspace(in[i])) return in.substr(i, in.size());
   }
   return "";
 }
 
 std::string dev::rpad(std::string in)
 {
-  size_t i = in.size();
-  for(i; i > 0; i--)
+  long long i = in.size() - 1;
+  for(i; i >= 0; i++)
   {
-    size_t x = i - 1;
-    if(!isspace(in[x]))
-    {
-      return in.substr(0, x + 1);
-    }
+    if(!isspace(in[i])) return in.substr(0, i);
   }
   return "";
 }
@@ -166,13 +168,28 @@ bool dev::getline(std::string& buffer, std::string end, std::istream& stream)
 
 std::vector<std::string> dev::split(std::string stream, char f)
 {
-  long tmp = 0;
-  long otmp = 0;
+  std::string str = stream;
   std::vector<std::string> out;
-  while((tmp = dev::find(stream, f)) >= 0)
+  long ocurrence = 0;
+  while((ocurrence = dev::find(str, f)) >= 0)
   {
-    out.push_back(stream.substr(otmp, tmp));
-    otmp = tmp;
+    out.push_back(str.substr(0, ocurrence));
+    str = str.substr(ocurrence + 1, str.size());
   }
+  if(str.size() != 0) out.push_back(str);
+  return out;
+}
+
+std::vector<std::string> dev::split(std::string stream, std::string f)
+{
+  std::string str = stream;
+  std::vector<std::string> out;
+  long ocurrence = 0;
+  while((ocurrence = dev::find(str, f)) >= 0)
+  {
+    out.push_back(str.substr(0, ocurrence));
+    str = str.substr(ocurrence + f.size(), str.size());
+  }
+  if(str.size() != 0) out.push_back(str);
   return out;
 }

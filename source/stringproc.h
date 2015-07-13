@@ -16,6 +16,7 @@ namespace dev
   bool contains(char find, std::string dict);
 
   std::vector<std::string> split(std::string stream, char f);
+  std::vector<std::string> split(std::string stream, std::string f);
 
   std::string pad(std::string in);
   void ipad(std::string& in);
