@@ -48,14 +48,14 @@ std::string dev::pad(std::string str)
 {
   std::string in = str;
   size_t i = 0;
-  while(isspace(in[i]) && i <= in.size()) i++;
+  while(isspace(in[i]) && i < in.size()) i++;
   in = in.substr(i, in.size());
 
   i = in.size();
   while(isspace(in[i]) && i != 0) i--;
   in = in.substr(0, i);
 
-  return str;
+  return in;
 //  return dev::lpad(dev::rpad(in));
 }
 

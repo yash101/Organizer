@@ -23,7 +23,12 @@ int main(int argc, char** argv)
   Arguments::argc = argc;
   Arguments::argv = argv;
 //  H().start(1234);
-  dev::HttpServer().start(1235);
+  try
+  {
+    dev::HttpServer().start(1235);
+  }
+  catch(std::exception& e)
+  {}
 }
 
 int Arguments::argc;

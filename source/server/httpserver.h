@@ -21,6 +21,7 @@ namespace dev
   private:
     //Order in typical invocation cycle ;)
     void worker(dev::TcpServerSession* session);
+    void bad_request(dev::HttpServerSession* session);
     void process_request(dev::HttpServerSession* session);
       void parse_get_queries(dev::HttpServerSession* session, long location);
       void add_cookie(dev::HttpServerSession* session, std::string data);

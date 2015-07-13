@@ -40,8 +40,24 @@ void generate_home_page(dev::HttpServerSession& session)
         o "input";
         o "{";
           o "width: 100%;";
+          o "box-sizing: border-box;";
         o "}";
       o "</style>";
+
+      o "<script type=\"text/javascript\">";
+        o "var update_get_form = function()";
+        o "{";
+          o "var key = document.getElementById(\"GET_KEY\").value;";
+          o "document.getElementById(\"GET_VALUE\").name = key;";
+        o "};";
+
+        o "var update_post_form = function()";
+        o "{";
+          o "var key = document.getElementById(\"POST_KEY\").value;";
+          o "document.getElementById(\"POST_VALUE\").name = key;";
+        o "};";
+      o "</script>";
+
     o "</head>";
     o "<body>";
       o "<table><tbody><tr><td><h1 style=\"text-align: center;\">DevLib Integrated Web Server Test Page</h1></td></tr></tbody></table>";
@@ -83,7 +99,7 @@ void generate_home_page(dev::HttpServerSession& session)
                 {
                   o "<tr>";
                     o "<td>" << it->first << "</td>";
-                    o "<td><b>" << (it->second.type == dev::GET ? "GET" : "POST") << ":</b>" << it->second.value << "</td>";
+                    o "<td><b>[" << (it->second.type == dev::GET ? "GET" : "POST") << ":]</b>[" << it->second.value << "]</td>";
                   o "</tr>";
                 }
                 o "</tbody>";
@@ -94,36 +110,54 @@ void generate_home_page(dev::HttpServerSession& session)
           o "<tr>";
             o "<td>GET Queries</td>";
             o "<td>";
-              o "<table>";
-                o "<thead><tr><th>Name</th><th>Value</th></tr></thead>";
-                o "<tbody>";
-                for(std::map<std::string, dev::HttpQuery>::const_iterator it = session.get.begin(); it != session.get.end(); ++it)
-                {
-                  o "<tr>";
-                    o "<td>" << it->first << "</td>";
-                    o "<td>" << it->second.value << "</td>";
-                  o "</tr>";
-                }
-                o "</tbody>";
-              o "</table>";
+              o "<form action=\"/\">";
+                o "<table>";
+                  o "<thead><tr><th>Name</th><th>Value</th></tr></thead>";
+                  o "<tbody>";
+                  for(std::map<std::string, dev::HttpQuery>::const_iterator it = session.get.begin(); it != session.get.end(); ++it)
+                  {
+                    o "<tr>";
+                      o "<td>[" << it->first << "]</td>";
+                      o "<td>[" << it->second.value << "]</td>";
+                    o "</tr>";
+                    o "<tr style=\"display: none;\">";
+                      o "<td><input type=\"text\" name=\"" << it->first << "\" value=\"" << it->second.value << "\" \"></td>";
+                    o "</tr>";
+                  }
+                    o "<tr>";
+                      o "<td><input type=\"text\" value=\"\" onkeyup=\"javascript:update_get_form();\" placeholder=\"Key\" id=\"GET_KEY\"></td>";
+                      o "<td><table><tr><td><input type=\"text\" value=\"\" placeholder=\"Value\" id=\"GET_VALUE\"></td><td><input type=\"submit\" value=\"Submit\"></td></tr></table></td>";
+                    o "</tr>";
+                  o "</tbody>";
+                o "</table>";
+              o "</form>";
             o "</td>";
           o "</tr>";
 
           o "<tr>";
             o "<td>POST Queries</td>";
             o "<td>";
-              o "<table>";
-                o "<thead><tr><th>Name</th><th>Value</th></tr></thead>";
-                o "<tbody>";
-                for(std::map<std::string, dev::HttpQuery>::const_iterator it = session.post.begin(); it != session.post.end(); ++it)
-                {
-                  o "<tr>";
-                    o "<td>" << it->first << "</td>";
-                    o "<td>" << it->second.value << "</td>";
-                  o "</tr>";
-                }
-                o "</tbody>";
-              o "</table>";
+              o "<form action=\"/\" method=\"POST\">";
+                o "<table>";
+                  o "<thead><tr><th>Name</th><th>Value</th></tr></thead>";
+                  o "<tbody>";
+                  for(std::map<std::string, dev::HttpQuery>::const_iterator it = session.post.begin(); it != session.post.end(); ++it)
+                  {
+                    o "<tr>";
+                      o "<td>[" << it->first << "]</td>";
+                      o "<td>[" << it->second.value << "]</td>";
+                    o "</tr>";
+                    o "<tr style=\"display: none;\">";
+                      o "<tr><input type=\"text\" name=\"" << it->first << "\" value=\"" << it->second.value << "\"></td>";
+                    o "</tr>";
+                  }
+                    o "<tr>";
+                      o "<td><input type=\"text\" value=\"\" onkeyup=\"javascript:update_post_form();\" placeholder=\"Key\" id=\"POST_KEY\"></td>";
+                      o "<td><table><tr><td><input type=\"text\" value=\"\" placeholder=\"Value\" id=\"POST_VALUE\"></td><td><input type=\"submit\" value=\"Submit\"></td></tr></table></td>";
+                    o "</tr>";
+                  o "</tbody>";
+                o "</table>";
+              o "</form>";
             o "</td>";
           o "</tr>";
 
@@ -138,8 +172,8 @@ void generate_home_page(dev::HttpServerSession& session)
                     for(std::map<std::string, dev::HttpCookie>::const_iterator it = session.cookies.begin(); it != session.cookies.end(); ++it)
                     {
                     o "<tr>";
-                      o "<td>" << it->first << "</td>";
-                      o "<td><b>" << it->second.path << ":</b>" << it->second.value << "</td>";
+                      o "<td>[" << it->first << "]</td>";
+                      o "<td><b>[" << it->second.path << ":]</b>[" << it->second.value << "]</td>";
                     o "</tr>";
                     }
                     o "<tr>";
@@ -161,8 +195,8 @@ void generate_home_page(dev::HttpServerSession& session)
                 for(std::map<std::string, std::string>::const_iterator it = session.incoming_headers.begin(); it != session.incoming_headers.end(); ++it)
                 {
                   o "<tr>";
-                    o "<td>" << it->first << "</td>";
-                    o "<td><b>" << it->second << "</td>";
+                    o "<td>[" << it->first << "]</td>";
+                    o "<td><b>[" << it->second << "]</td>";
                   o "</tr>";
                 }
                 o "</tbody>";
