@@ -33,6 +33,10 @@ namespace dev
 
   std::string encodeURI(std::string in);
   std::string decodeURI(std::string in);
+  void iencodeURI(std::string& in);
+  void idecodeURI(std::string& in);
+
+  std::string httpStatus(int code);
 
   std::string getHTTPTimestamp();
 

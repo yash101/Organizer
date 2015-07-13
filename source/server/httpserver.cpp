@@ -2,6 +2,7 @@
 #include "../stringproc.h"
 #define DEV_HTTP_SERVER_CPP
 #include "httpserver_int.h"
+#define HTTP_BAD_REQUEST 1
 void dev::HttpServer::worker(dev::TcpServerSession* connection)
 {
   //Create a session object and set it up
@@ -9,14 +10,22 @@ void dev::HttpServer::worker(dev::TcpServerSession* connection)
   session.connection = connection;
   session.server = this;
 
-  process_request(&session);
-  check_request(&session);
-  prepare_session(&session);
+  try
+  {
+    process_request(&session);
+    check_request(&session);
+    prepare_session(&session);
 
-  on_request(session);
+    on_request(session);
 
-  check_session_response(&session);
-  send_response(&session);
+    check_session_response(&session);
+    send_response(&session);
+  }
+  catch(dev::HttpServerException& e)
+  {
+    if(e.code() == HTTP_BAD_REQUEST) bad_request(&session);
+    else throw e;
+  }
 }
 
 void dev::HttpServer::process_request(dev::HttpServerSession* session)
@@ -40,12 +49,12 @@ void dev::HttpServer::process_request(dev::HttpServerSession* session)
   std::vector<std::string> parts = dev::split(buffer, ' ');
 
   //Make sure that we recieved all three parts. We'll ignore everything else
-  if(parts.size() < 3) throw dev::HttpServerException("Bad Request");
+  if(parts.size() < 3) throw dev::HttpServerException(HTTP_BAD_REQUEST, "Bad Request");
 
   //Process the request method (GET/POST/etc.)
   if(parts[0] == "GET") session->method = GET;
   else if(parts[0] == "POST") session->method = POST;
-  else throw dev::HttpServerException("Bad Request");
+  else throw dev::HttpServerException(HTTP_BAD_REQUEST, "Bad Request");
 
   //Process the path string
   session->path = parts[1];
@@ -59,7 +68,7 @@ void dev::HttpServer::process_request(dev::HttpServerSession* session)
   //Parse protocol being used
   if(parts[2] == "HTTP/1.0") session->proto = HTTP_1_0;
   else if(parts[2] == "HTTP/1.1") session->proto = HTTP_1_1;
-  else throw dev::HttpServerException("Bad Request");
+  else throw dev::HttpServerException(HTTP_BAD_REQUEST, "Bad Request");
 
   //Download and parse all headers
   while(true)
@@ -121,6 +130,9 @@ void dev::HttpServer::parse_get_queries(dev::HttpServerSession* session, long lo
     dev::ipad(key);
     dev::ipad(value);
 
+    dev::idecodeURI(key);
+    dev::idecodeURI(value);
+
     session->get[key] = dev::HttpQuery(GET, value);
     session->queries[key] = session->get[key];
   }
@@ -156,6 +168,9 @@ void dev::HttpServer::add_cookie(dev::HttpServerSession* session, std::string da
   }
 
   dev::ipad(cookie.path);
+  dev::idecodeURI(field);
+  dev::idecodeURI(cookie.value);
+  dev::idecodeURI(cookie.path);
 
   if(field.size() != 0) session->cookies[field] = cookie;
 }
@@ -171,7 +186,7 @@ void dev::HttpServer::parse_post_queries(dev::HttpServerSession* session)
       data.reserve(length);
       for(long i = 0; i < length; i++)
       {
-        length += (char) session->connection->get();
+        data += (char) session->connection->get();
       }
 
       std::vector<std::string> queries = dev::split(data, '&');
@@ -197,6 +212,8 @@ void dev::HttpServer::parse_post_queries(dev::HttpServerSession* session)
 
         dev::ipad(key);
         dev::ipad(value);
+        dev::idecodeURI(key);
+        dev::idecodeURI(value);
 
         session->post[key] = dev::HttpQuery(POST, value);
         session->queries[key] = session->post[key];
@@ -209,7 +226,7 @@ void dev::HttpServer::check_request(dev::HttpServerSession* session)
 {
   if(session->proto == HTTP_1_1 && session->incoming_headers["host"].size() == 0)
   {
-    throw dev::HttpServerException("Bad Request");
+    throw dev::HttpServerException(HTTP_BAD_REQUEST, "Bad Request");
   }
 }
 
@@ -217,12 +234,12 @@ void dev::HttpServer::prepare_session(dev::HttpServerSession* session)
 {
   session->headers["content-type"] = "text/html";
   session->responseCode = 200;
-  session->responseStatus = "OK";
 }
 
 void dev::HttpServer::check_session_response(dev::HttpServerSession* session)
 {
   if(session->headers["content-type"].size() == 0) session->headers["content-type"] = "text/html";
+  if(session->responseStatus.size() == 0) session->responseStatus = dev::httpStatus(session->responseCode);
   session->headers["content-length"] = dev::toString(session->response.size());
   session->headers["date"] = dev::getHTTPTimestamp();
 }
@@ -230,7 +247,7 @@ void dev::HttpServer::check_session_response(dev::HttpServerSession* session)
 void dev::HttpServer::send_response(dev::HttpServerSession* session)
 {
   std::string line = "";
-  line += session->proto == HTTP_1_0 ? "HTTP/1.0 " : "HTTP/1.1";
+  line += session->proto == HTTP_1_0 ? "HTTP/1.0 " : "HTTP/1.1 ";
   line += dev::toString(session->responseCode);
   line += (" " + session->responseStatus + "\r\n");
 
@@ -247,13 +264,36 @@ void dev::HttpServer::send_response(dev::HttpServerSession* session)
     if(session->cookies[it->first].path.size() == 0) session->cookies[it->first].path = "/";
 
     std::stringstream out;
-    out << "set-cookie: " << it->first << "=" << it->second.value << "; path=" << it->second.path << "\r\n";
+    out << "set-cookie: " << dev::encodeURI(it->first) << "=" << dev::encodeURI(it->second.value) << "; path=" << dev::encodeURI(it->second.path) << "\r\n";
     session->connection->put(out.str().c_str());
   }
 
   session->connection->put("\r\n");
   session->connection->put(session->response);
   session->connection->put("\r\n");
+}
+
+void dev::HttpServer::bad_request(dev::HttpServerSession* session)
+{
+  std::stringstream w;
+  w << "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">";
+  w << "<html><head><title>400 Bad Request</title></head>";
+  w << "<body>";
+    w << "<h1>Bad Request (400)</h1>";
+    w << "<p>Status code: 400</p>";
+    w << "<p>I was unable to understand the request. Please try again, or try a newer web browser such as <a href=\"http://chrome.google.com/\">Google Chrome</a></p>";
+  w << "</body>";
+  w << "</html>";
+  std::stringstream o;
+  o << "HTTP/1.0 400 Bad Request\r\n";
+  o << "Date: " << dev::getHTTPTimestamp() << "\r\n";
+  o << "Server: DevLib Integrated Server\r\n";
+  o << "Connection: close\r\n";
+  o << "Content-Type: text/html\r\n";
+  o << "Content-Length: " << w.str().size() << "\r\n\r\n";
+  o << w.str() << "\r\n";
+
+  session->connection->put(o.str());
 }
 
 
