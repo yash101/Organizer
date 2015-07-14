@@ -6,17 +6,29 @@
 
 //Include these files if the platform is POSIX
 #ifdef POSIX
+
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+
+#else
+
+#pragma comment(lib, "Ws2_32.lib")
+#include <Windows.h>
+#include <winsock.h>
+WSADATA wsadata;
+WORD wVersionRequested = NULL;
+int wsaerr = 0;
+
 #endif
 
-#include <cstring>
+#include <string.h>
 #include <thread>
 #include <sstream>
+#include <stdio.h>
 
 #include "../stringproc.h"
 
@@ -26,15 +38,23 @@
 #define E_BAD_WRITE -4
 #define E_BAD_READ -5
 
-
-
-#include <stdio.h>
-
-
-
 dev::TcpServer::TcpServer() :
   _address_allocated(false)
 {
+#ifdef _WIN32
+  //Initialize Windows sockets (Yeah, I know! They are a pain in the a$$!)
+  if(wVersionRequested == NULL)
+  {
+    wVersionRequested = MAKEWORD(2, 2);
+    wsaerr = WSAStartup(wVersionRequested, &wsadata);
+    if(wsaerr != 0)
+    {
+      fprintf(stderr, "Unable to find winsock!\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+#endif
+  //Initialization of the address pointer.
   _address = NULL;
 }
 
@@ -54,9 +74,17 @@ int dev::TcpServer::start(int port)
   _port = port;
 
   //Create the socket
+#ifndef _WIN32
   _fd = socket(AF_INET, SOCK_STREAM, 0);
+#else
+  _fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
   //Check to make sure socket creation was successful
+#ifndef _WIN32
   if(_fd < 0)
+#else
+  if(_fd == WSANOTINITIALISED)
+#endif
   {
     throw dev::TcpServerException(E_SOCK_CREATE_ERROR, "Unable to create socket");
   }
@@ -73,7 +101,8 @@ int dev::TcpServer::start(int port)
   }
   _address_allocated = true;
 
-  bzero((char*) _address, sizeof(struct sockaddr_in));
+  memset((char*) _address, 0, sizeof(struct sockaddr_in));
+//  bzero((char*) _address, sizeof(struct sockaddr_in));
 
   //Populate the server address structure with important information
   s(_address)->sin_family = AF_INET;
@@ -110,8 +139,11 @@ int dev::TcpServer::start(int port)
     int c = sizeof(struct sockaddr_in);
 
     //Accept the new connection
+#ifndef _WIN32
     session->_fd = accept(_fd, (struct sockaddr*) session->_address, (socklen_t*) &c);
-
+#else
+    session->_fd = accept(_fd, (struct sockaddr*) session->_address, &c);
+#endif
     //Check for accept failures
     if(session->_fd < 0)
     {
@@ -161,7 +193,11 @@ dev::TcpServer::~TcpServer()
     struct sockaddr_in* ad = (struct sockaddr_in*) _address;
     delete ad;
   }
+#ifndef _WIN32
   close(_fd);
+#else
+  closesocket(_fd);
+#endif
 }
 
 //!----------Session functions. Random other clutter----------
@@ -177,20 +213,33 @@ dev::TcpServerSession::~TcpServerSession()
   //Deallocate
   struct sockaddr_in* sock = (struct sockaddr_in*) _address;
   delete sock;
+#ifdef _WIN32
+  shutdown(_fd, 1);
+  closesocket(_fd);
+#else
   shutdown(_fd, SHUT_WR);
   close(_fd);
+#endif
 }
 
 int dev::TcpServerSession::put(char byte)
 {
+#ifndef _WIN32
   int o = ::send(_fd, &byte, 1, MSG_NOSIGNAL);
+#else
+  int o = ::send(_fd, &byte, 1, 0);
+#endif
   if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
   return o;
 }
 
 int dev::TcpServerSession::put(std::string string)
 {
+#ifndef _WIN32
   int o = ::send(_fd, string.c_str(), string.size(), MSG_NOSIGNAL);
+#else
+  int o = ::send(_fd, string.c_str(), string.size(), 0);
+#endif
   if(o < 0) throw dev::TcpServerException(E_BAD_WRITE, "Unable to write to socket");
   return o;
 }
