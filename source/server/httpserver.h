@@ -4,6 +4,8 @@
 #include "http.h"
 #include <string>
 #include <map>
+#include <vector>
+#include <chrono>
 namespace dev
 {
   class HttpServer;
@@ -19,6 +21,9 @@ namespace dev
   class HttpServer : public dev::TcpServer
   {
   private:
+    std::vector<dev::HttpServerSession*> _current_sessions;
+    void timer();
+
     //Order in typical invocation cycle ;)
     void worker(dev::TcpServerSession* session);
     void bad_request(dev::HttpServerSession* session);

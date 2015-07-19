@@ -44,6 +44,8 @@ namespace dev
 
   class TcpServerSession
   {
+  private:
+    bool _socketClosed;
   public:
     int _fd;
     void* _address;

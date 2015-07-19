@@ -7,13 +7,12 @@
 #include "entry.h"
 #include "server/tcp_socket.h"
 #include "server/httpserver.h"
-
+#include <sstream>
 class H : public dev::HttpServer
 {
 private:
   void on_request(dev::HttpServerSession& session)
   {
-    session.response = "<html><body><h1>Hi!</h1></body></html>";
   }
 };
 
@@ -22,10 +21,9 @@ int main(int argc, char** argv)
   //Assign the incoming arguments to our arguments' structure
   Arguments::argc = argc;
   Arguments::argv = argv;
-//  H().start(1234);
   try
   {
-    dev::HttpServer().start(1234);
+    H().start(1234);
   }
   catch(std::exception& e)
   {}

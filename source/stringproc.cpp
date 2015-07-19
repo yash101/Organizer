@@ -56,7 +56,6 @@ std::string dev::pad(std::string str)
   in = in.substr(0, i);
 
   return in;
-//  return dev::lpad(dev::rpad(in));
 }
 
 std::string dev::lpad(std::string in)
@@ -176,7 +175,7 @@ std::vector<std::string> dev::split(std::string stream, char f)
     out.push_back(str.substr(0, ocurrence));
     str = str.substr(ocurrence + 1, str.size());
   }
-  if(str.size() != 0) out.push_back(str);
+  out.push_back(str);
   return out;
 }
 

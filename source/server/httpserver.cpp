@@ -68,20 +68,25 @@ void dev::HttpServer::process_request(dev::HttpServerSession* session)
   //Parse protocol being used
   if(parts[2] == "HTTP/1.0") session->proto = HTTP_1_0;
   else if(parts[2] == "HTTP/1.1") session->proto = HTTP_1_1;
+  //Send the user "Bad Request" they sent a protocol which is either not understood or badly formed
   else throw dev::HttpServerException(HTTP_BAD_REQUEST, "Bad Request");
 
   //Download and parse all headers
   while(true)
   {
+    //Read a line. All request headers end in \r\n. \n is fine because we are rarely going to find \r in a header
     buffer = session->connection->readLine('\n');
+    //Remove the \r if it exists. That was ignored as part of a micro-optimization
     if(buffer[buffer.size() - 1] == '\r' || buffer[buffer.size() - 1] == '\n') buffer.pop_back();
-    dev::ipad(buffer);
 
-    if(buffer.size() == 0) break;
+//Commented out for a micro-optimization (will be padded again. Prevent the jump).
+//    //Get rid of any extra whitespace
+//    dev::ipad(buffer);
+//    if(buffer.size() == 0) break;
 
     long clocation = dev::find(buffer, ':');
     if(clocation < 0) continue;
-    if(buffer[0] == ':') continue;
+//    if(buffer[0] == ':') continue;
 
     std::string key = buffer.substr(0, clocation);
     std::string value = buffer.substr(clocation + 1, buffer.size() - 1);
@@ -90,6 +95,9 @@ void dev::HttpServer::process_request(dev::HttpServerSession* session)
     dev::ipad(value);
     dev::itolower(key);
 
+    if(key.size() == 0) continue;
+
+    //If the browser sent us a yummy cookie...
     if(key == "cookie")
     {
       add_cookie(session, value);
