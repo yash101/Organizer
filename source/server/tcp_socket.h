@@ -33,7 +33,7 @@ namespace dev
     int _port;
     void* _address;
     bool _address_allocated;
-    void listener();
+//    void listener();
     void listenerProxy(dev::TcpServerSession* connection);
     virtual void worker(dev::TcpServerSession* connection);
   public:

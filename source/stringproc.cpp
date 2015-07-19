@@ -71,7 +71,7 @@ std::string dev::lpad(std::string in)
 std::string dev::rpad(std::string in)
 {
   long long i = in.size() - 1;
-  for(i; i >= 0; i++)
+  for(; i >= 0; i++)
   {
     if(!isspace(in[i])) return in.substr(0, i);
   }

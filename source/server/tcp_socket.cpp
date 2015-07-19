@@ -225,7 +225,11 @@ dev::TcpServerSession::~TcpServerSession()
 int dev::TcpServerSession::put(char byte)
 {
 #ifndef _WIN32
+#ifdef __MACH__
+  int o = ::send(_fd, &byte, 1, SO_NOSIGPIPE);
+#else
   int o = ::send(_fd, &byte, 1, MSG_NOSIGNAL);
+#endif
 #else
   int o = ::send(_fd, &byte, 1, 0);
 #endif
@@ -236,7 +240,11 @@ int dev::TcpServerSession::put(char byte)
 int dev::TcpServerSession::put(std::string string)
 {
 #ifndef _WIN32
+#ifdef __MACH__
+  int o = ::send(_fd, string.c_str(), string.size(), SO_NOSIGPIPE);
+#else
   int o = ::send(_fd, string.c_str(), string.size(), MSG_NOSIGNAL);
+#endif
 #else
   int o = ::send(_fd, string.c_str(), string.size(), 0);
 #endif
