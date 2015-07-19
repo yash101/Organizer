@@ -10,3 +10,5 @@ build
 
 #In case of Macintosh users
 .DS_Store
+
+*.log

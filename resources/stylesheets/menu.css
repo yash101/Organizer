@@ -1,0 +1,7 @@
+body > #topnav > div
+{
+  display: inline-block;
+  height: 482px;
+  background-color: #111111;
+  min-width: 48px;
+}
