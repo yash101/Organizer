@@ -1,4 +1,4 @@
 (function()
 {
-  $.getScript("script/drawer.js", function() {});
+  angular.module("app", ["ngRoute"]);
 })();

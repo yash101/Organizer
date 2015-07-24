@@ -10,3 +10,8 @@ var server = app.listen(1234, function()
 });
 
 app.use(express.static('resources'));
+
+app.get("*", function(req, res)
+{
+  res.sendFile(__dirname + "/resources/index.html");
+});

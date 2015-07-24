@@ -1,7 +1,92 @@
 body > #topnav > div
 {
   display: inline-block;
-  height: 482px;
+  height: 48px;
   background-color: #111111;
   min-width: 48px;
+  color: #C6C6C6;
+  top: 0px;
+  text-align: center;
+  line-height: 48px;
+
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+body > #topnav > div > a
+{
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+body > #topnav > div:hover
+{
+  background-color: #404040;
+  color: white;
+}
+
+body > #topnav > div#menu-toggle
+{
+  background-image: url(../resources/images/icons/hamburger_48_48.png);
+  background-size: 32px 32px;
+  background-repeat: no-repeat;
+  background-position: 8px 8px;
+  padding: 0px;
+}
+
+body > #topnav
+{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 48px;
+
+  background-color: #111111;
+  color: white;
+
+}
+
+body > #topnav > div#login
+{
+  position: absolute;
+  right: 0px;
+  display: block;
+
+  margin-right: 1px;
+}
+
+body > #sidebar > div
+{
+  display: block;
+  width: 100%;
+  min-height: 32px;
+  font-size: 24px;
+  line-height: 32px;
+  border-bottom: 1px solid #404040;
+  padding-left: 8px;
+  box-sizing: border-box;
+  font-weight: bold;
+}
+
+body > #sidebar > div:hover
+{
+  background-color: #404040;
+  color: white;
+}
+
+body > #sidebar > div > a
+{
+  color: inherit;
+  background-color: inherit;
+  font-weight: inherit;
+  text-decoration: inherit;
+  display: block;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
 }

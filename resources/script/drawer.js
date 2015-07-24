@@ -2,6 +2,10 @@
 {
   $(document).ready(function()
   {
+    $("body > #topnav > div#menu-toggle").click(function()
+    {
+      Drawer.toggle();
+    });
   });
 })();
 
@@ -20,6 +24,8 @@ var Drawer =
       {left: "256px", right: "-256px"},
       {duration: 200, queue: false}
     );
+
+    this.opened = true;
   },
   close:function()
   {
@@ -41,5 +47,12 @@ var Drawer =
       duration: 200,
       queue: false
     });
+
+    this.opened = false;
+  },
+  toggle:function()
+  {
+    if(this.opened) this.close();
+    else this.open();
   }
 };

@@ -2,14 +2,25 @@
 <html>
   <head>
     <title>Organizer</title>
+    
+    <link rel="stylesheet" type="text/css" href="script/lib/jquery/jqueryui/jquery-ui.min.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/menu.css">
+
+    <base href="/">
   </head>
 
-  <body ng-app>
+  <body ng-app="app" ng-controller="main_controller">
     <div id="topnav">
-      <div id="menu-toggle"></div>
+      <div id="menu-toggle">&nbsp;</div>
+      <div id="home"><a href="#">Home</a></div>
+      <div id="launcher"><a href="#">Launcher</a></div>
+
+      <div id="login" ng-controller="topnav_authentication_menu">Hello, {{firstName}}!</div>
     </div>
 
-    <div id="sidebar">
+    <div id="sidebar" ng-controller="sidebar">
+      <div class="item" ng-repeat="item in items"><a ng-href="{{item.href}}">{{item.text}}</a></div>
     </div>
 
     <div id="content" ng-view>
@@ -18,10 +29,11 @@
     <script type="text/javascript" src="script/lib/jquery/jquery.js"></script>
     <script type="text/javascript" src="script/lib/jquery/jqueryui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="script/lib/angular/angular.min.js"></script>
-    <script type="text/javascript" src="script/init.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-route.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="script/lib/jquery/jqueryui/jquery-ui.min.css">
-    <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
-    <link rel="stylesheet" type="text/css" href="stylesheets/menu.css">
+    <script type="text/javascript" src="script/init.js"></script>
+    <script type="text/javascript" src="script/controllers.js"></script>
+    <script type="text/javascript" src="script/drawer.js"></script>
+    <script type="text/javascript" src="script/auth.js"></script>
   </body>
 </html>
