@@ -1,8 +1,3 @@
-<%
-@"path" = "/script/jslib/jquery.js"
-@"content-type" = "text/javascript"
-%>
-
 /*!
  * jQuery JavaScript Library v1.11.3
  * http://jquery.com/
