@@ -25,5 +25,49 @@
 //  Selector                                    Name
     if(path == "/" || path == "/home")          loadPage("home");
     if(path == "/settings")                     loadPage("settings");
+
+    else                                        loadPage("home");
+
+
+
+    //Just for fun and to make the site look a bit cool ;)
+    $("body > #topnav > div#menu-toggle")
+      .css("background-size", "48px 48px")
+      .css("background-position", "0px 0px");
+
+    setTimeout(function()
+    {
+      $("body > #topnav > div#menu-toggle")
+        .css("background-size", "32px 32px")
+        .css("background-position", "8px 8px");
+    }, 125);
+    
+    setTimeout(function()
+    {
+      $("body > #topnav > div#menu-toggle")
+        .css("background-size", "48px 48px")
+        .css("background-position", "0px 0px");
+    }, 250);
+
+    setTimeout(function()
+    {
+      $("body > #topnav > div#menu-toggle")
+        .css("background-size", "32px 32px")
+        .css("background-position", "8px 8px");
+    }, 375);
+    
+    setTimeout(function()
+    {
+      $("body > #topnav > div#menu-toggle")
+        .css("background-size", "48px 48px")
+        .css("background-position", "0px 0px");
+    }, 500);
+    
+    setTimeout(function()
+    {
+      $("body > #topnav > div#menu-toggle")
+        .css("background-size", "32px 32px")
+        .css("background-position", "8px 8px");
+    }, 675);
   });
 })();

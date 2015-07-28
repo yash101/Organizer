@@ -35,6 +35,7 @@ body > #topnav > div#menu-toggle
   background-repeat: no-repeat;
   background-position: 8px 8px;
   padding: 0px;
+  -webkit-transition: all .125s ease-in-out;
 }
 
 body > #topnav
