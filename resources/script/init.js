@@ -49,25 +49,25 @@
         .css("background-position", "0px 0px");
     }, 250);
 
+    //setTimeout(function()
+    //{
+      //$("body > #topnav > div#menu-toggle")
+        //.css("background-size", "32px 32px")
+        //.css("background-position", "8px 8px");
+    //}, 375);
+    
+    //setTimeout(function()
+    //{
+      //$("body > #topnav > div#menu-toggle")
+        //.css("background-size", "48px 48px")
+        //.css("background-position", "0px 0px");
+    //}, 500);
+    
     setTimeout(function()
     {
       $("body > #topnav > div#menu-toggle")
         .css("background-size", "32px 32px")
         .css("background-position", "8px 8px");
     }, 375);
-    
-    setTimeout(function()
-    {
-      $("body > #topnav > div#menu-toggle")
-        .css("background-size", "48px 48px")
-        .css("background-position", "0px 0px");
-    }, 500);
-    
-    setTimeout(function()
-    {
-      $("body > #topnav > div#menu-toggle")
-        .css("background-size", "32px 32px")
-        .css("background-position", "8px 8px");
-    }, 675);
   });
 })();
