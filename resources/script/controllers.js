@@ -24,29 +24,4 @@
       }
     ];
   });
-
-  ////This configuration enables routing in AngularJS
-  //angular.module("app").config(function($routeProvider, $locationProvider)
-  //{
-    //$routeProvider
-      //.when("/",
-      //{
-        //templateUrl: "pages/home.html",
-        //resolve:
-        //{
-        //}
-        //controller: "homeController" 
-      //})
-      //.when("/helloWorld",
-      //{
-        //templateUrl: "pages/helloworld.html"
-      //});
-
-    //$locationProvider.html5Mode(true);
-  //});
-
-  ////angular.module("app").controller("homeController", function($scope)
-  ////{
-    ////$scope.home = "Hi!";
-  ////});
 })();

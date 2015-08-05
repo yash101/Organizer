@@ -1,0 +1,38 @@
+body > #content > .notes_view
+{
+  display: none;
+}
+
+#content > #classes_view
+{
+  width: 96%;
+  left: 2%;
+  padding: 16px;
+  background-color: #404040;
+}
+
+#content > #classes_view > #classes_list
+{
+  text-align: left;
+  width: 100%;
+}
+
+#content > #classes_view > #classes_list > div
+{
+  display: inline-block;
+  width: 192px;
+  height: 192px;
+  background-color: #C6C6C6;
+  line-height: 192px;
+  text-align: center;
+  margin: 2px;
+  color: black;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+#content > #classes_view > #classes_list > div:hover
+{
+  background-color: #FFFFFF;
+}

@@ -1,6 +1,6 @@
 ;(function()
 {
-  angular.module("app", ["ngRoute"]);
+  angular.module("app", []);
 
   $(document).ready(function()
   {
@@ -22,8 +22,12 @@
 
     var path = window.location.pathname;
 
+//My homebrew (and sorta crappy) router :)
 //  Selector                                    Name
     if(path == "/" || path == "/home")          loadPage("home");
     if(path == "/settings")                     loadPage("settings");
+    if(path == "/notes")                        loadPage("notes");
+
+    else                                        loadPage("home");
   });
 })();

@@ -1,0 +1,31 @@
+<div id="classes_view" class="notes_view" ng-controller="classes_view_controller">
+  <div id="classes_list">
+    <div ng-each="class in class_list" ng-click="class.action">{{class.name}}</div>
+  </div>
+</div>
+
+<div id="notes_view" class="notes_view">
+  <div id="notes_list">
+  </div>
+</div>
+
+<div id="notepad" class="notes_view">
+  <form action="javascript:void();">
+    <div id="header">
+      <input type="text" type="text">
+    </div>
+
+    <div id="mdbox">
+      <textarea id="text"></textarea>
+      <textarea id="summary"></textarea>
+    </div>
+
+    <div id="drawpad">
+      <canvas id="pad"></canvas>
+      <div id="toolbar">
+      </div>
+    </div>
+  </form>
+</div>
+
+<link rel="stylesheet" type="text/css" href="/pages/notes.css">
