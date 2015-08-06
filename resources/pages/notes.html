@@ -1,6 +1,8 @@
 <div id="classes_view" class="notes_view" ng-controller="classes_view_controller">
   <div id="classes_list">
-    <div ng-each="class in class_list" ng-click="class.action">{{class.name}}</div>
+    <div onclick="javascript:newClass();">New</div>
+    <div onclick="javascript:selectClass('helloworld');">Hello World</div>
+    <div onclick="javascript:newClass();">New</div>
   </div>
 </div>
 

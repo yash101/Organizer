@@ -11,6 +11,10 @@ build
 #In case of Macintosh users
 .DS_Store
 
+#log files
 *.log
 
+#NodeJS modules installation directory
 node_modules
+#Database directory
+database
