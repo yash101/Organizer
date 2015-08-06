@@ -17,6 +17,7 @@
   //Return the index page as the fallback.
   app.get("*", function(req, res)
   {
+    //read the index file and send it!
     res.sendFile(__dirname + "/resources/index.html");
   });
 })();
