@@ -7,23 +7,22 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
     <link rel="stylesheet" type="text/css" href="stylesheets/menu.css">
 
-    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
   <body ng-app="app" ng-controller="main_controller">
     <div id="topnav">
       <div id="menu-toggle">&nbsp;</div>
-      <div id="home"><a href="#">Home</a></div>
-      <div id="launcher"><a href="#">Launcher</a></div>
+      <div id="home"><a href="/home">Home</a></div>
 
-      <div id="login" ng-controller="topnav_authentication_menu">Hello, {{firstName}}!</div>
+      <div id="login" ng-controller="topnav_authentication_menu"><a href="/settings">Hello, {{firstName}}!</a></div>
     </div>
 
     <div id="sidebar" ng-controller="sidebar">
       <div class="item" ng-repeat="item in items"><a ng-href="{{item.href}}">{{item.text}}</a></div>
     </div>
 
-    <div id="content" ng-view>
+    <div id="content">
     </div>
 
     <script type="text/javascript" src="script/lib/jquery/jquery.js"></script>
@@ -31,9 +30,8 @@
     <script type="text/javascript" src="script/lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-route.js"></script>
 
+    <script type="text/javascript" src="script/layout.js"></script>
     <script type="text/javascript" src="script/init.js"></script>
     <script type="text/javascript" src="script/controllers.js"></script>
-    <script type="text/javascript" src="script/drawer.js"></script>
-    <script type="text/javascript" src="script/auth.js"></script>
   </body>
 </html>

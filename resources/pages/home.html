@@ -1,1 +1,55 @@
-<h1>Home!</h1>
+<div id="page_home">
+  <div id="layout">
+    <div><a href="/home">Home</a></div>
+    <div>&nbsp;</div>
+    <div>&nbsp;</div>
+    <div><a href="/search">Search</a></div>
+    <div><a href="/settings" style="background-image: url(resources/images/icons/gear.svg);">&nbsp;</a></div>
+  </div>
+
+  <style type="text/css">
+  body > #content > #page_home > #layout
+  {
+    position: relative;
+    width: 100%;
+    text-align: center;
+  }
+
+  body > #content > #page_home > #layout > div
+  {
+    display: inline-block;
+    width: 256px;
+    height: 256px;
+    background-color: #C6C6C6;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 8px;
+
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+    -ms-transition: all .1s linear;
+    -o-transition: all .1s linear;
+    transition: all .1s linear;
+
+    line-height: 256px;
+    font-size: 64px;
+    color: black;
+  }
+
+  body > #content > #page_home > #layout > div:hover
+  {
+    background-color: darkgreen;
+    color: white;
+  }
+
+  body > #content > #page_home > #layout > div > a
+  {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    background-size: cover;
+  }
+  </style>
+</div>
