@@ -3,6 +3,8 @@
   //Import express JS and set up our app
   var express = require("express");
   var app = express();
+  var db = require("mongodb");
+  var dbcli = mongodb.MongoClient;
 
   //Enable the server and begin listening on port 1234
   var server = app.listen(1234, function()
