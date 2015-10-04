@@ -1,6 +1,7 @@
 ;(function()
 {
   angular.module("app", ["ngRoute"]);
+  var lck_psel = false;
 
   $(document).ready(function()
   {
@@ -15,6 +16,8 @@
         $("body > #content").html(data);
         getScript("/pages/" + name + ".js");
       });
+
+      lck_psel = true;
     };
 
     getScript("/script/drawer.js");
@@ -22,12 +25,14 @@
 
     var path = window.location.pathname;
 
+    console.log(path);
+
 //  Selector                                    Name
     if(path == "/" || path == "/home")          loadPage("home");
     if(path == "/settings")                     loadPage("settings");
     if(path == "/notes")                        loadPage("notes");
 
-    else                                        loadPage("home");
+    if(!lck_psel)                               loadPage("home");
 
 
 
@@ -50,20 +55,6 @@
         .css("background-position", "0px 0px");
     }, 250);
 
-    //setTimeout(function()
-    //{
-      //$("body > #topnav > div#menu-toggle")
-        //.css("background-size", "32px 32px")
-        //.css("background-position", "8px 8px");
-    //}, 375);
-    
-    //setTimeout(function()
-    //{
-      //$("body > #topnav > div#menu-toggle")
-        //.css("background-size", "48px 48px")
-        //.css("background-position", "0px 0px");
-    //}, 500);
-    
     setTimeout(function()
     {
       $("body > #topnav > div#menu-toggle")

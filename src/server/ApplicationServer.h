@@ -16,18 +16,19 @@
 
 typedef bool (*ServerFunction_t)(server::HttpServerSession&);
 
+
 class ApplicationServer : public server::HttpServer
 {
 protected:
 
   std::map<std::string, ServerFunction_t> _functions;
-  bool handle404(server::HttpServerSession& session);
+  std::map<std::string, std::string> _static_handlers;
 
 #ifndef DISABLE_LAMBDAS
   std::map<std::string, std::function<bool(server::HttpServerSession&)> > _lambdas;
 #endif
 
-  static bool static_handler(server::HttpServerSession& session);
+  static bool static_handler(server::HttpServerSession& session, std::string addbasepath);
   void request_handler(server::HttpServerSession& session);
   void error_handler(int code, server::HttpServerSession& session);
 
@@ -41,6 +42,10 @@ public:
 #endif
 
   void set_static(std::string regex);
+  void set_static(std::string regex, std::string addbasepath);
+
+  ServerFunction_t errorHandler404;
+  static bool handle404(server::HttpServerSession& session);
 
 };
 

@@ -5,12 +5,11 @@
 #include <regex>
 #include <sstream>
 #include <iostream>
-#include <sys/stat.h>
 
 ApplicationServer::ApplicationServer()
 {
+  errorHandler404 = &ApplicationServer::handle404;
 }
-
 
 bool ApplicationServer::handle404(server::HttpServerSession& session)
 {
@@ -74,6 +73,8 @@ void ApplicationServer::request_handler(server::HttpServerSession& session)
     }
   }
 
+  if(success) return;
+
 #ifndef DISABLE_LAMBDAS
   for(std::map<std::string, std::function<bool (server::HttpServerSession&)> >::const_iterator it = _lambdas.begin(); it != _lambdas.end(); ++it)
   {
@@ -88,90 +89,33 @@ void ApplicationServer::request_handler(server::HttpServerSession& session)
   }
 #endif
 
-  if(!success)
+  if(success) return;
+
+  for(std::map<std::string, std::string>::const_iterator it = _static_handlers.begin(); it != _static_handlers.end(); ++it)
   {
-    handle404(session);
+    if(std::regex_match(session.Path, std::regex(it->first)))
+    {
+      if(static_handler(session, it->second))
+      {
+        success = true;
+        break;
+      }
+    }
   }
+
+  if(success) return;
+
+  errorHandler404(session);
 }
 
 void ApplicationServer::set_static(std::string regex)
 {
-  _functions[regex] = &this->static_handler;
+  _static_handlers[regex] = "";
 }
 
-bool ApplicationServer::static_handler(server::HttpServerSession& session)
+void ApplicationServer::set_static(std::string regex, std::string addbasepath)
 {
-  std::vector<std::string> parts = server::split(session.Path, '/');
-  bool directory = false;
-
-  std::string path;
-  for(size_t i = 0; i < parts.size(); i++)
-  {
-    if(parts[i].size() == 0 || parts[i] == "/" || parts[i] == "../" || parts[i] == "./" || parts[i] == ".")
-      continue;
-
-    path += parts[i] + "/";
-
-    struct stat st;
-    stat(path.substr(0, path.size() - 1).c_str(), &st);
-    if(S_ISREG(st.st_mode))
-    {
-      directory = false;
-      break;
-    }
-    else if(S_ISDIR(st.st_mode))
-    {
-      directory = true;
-    }
-  }
-
-  if(path.size() > 0)
-    path.pop_back();
-
-  if(!directory)
-  {
-    if((session.Response.ftype = fopen(path.c_str(), "r")) != NULL)
-    {
-      session.Response.type = server::FILE;
-      session.ResponseStatusCode = 200;
-
-      size_t pos = path.find_last_of('.');
-      if(pos == std::string::npos || path.back() == '.')
-        session.headers["content-type"] = "text/html";
-      else
-        session.headers["content-type"] = mime_server[path.substr(pos + 1, path.size())].http_mime;
-
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-  else
-  {
-    std::vector<std::string> indices = server::split(server::configuration()["indices"], ',');
-    if(path.back() != '/') path.append("/");
-    for(size_t i = 0; i < indices.size(); i++)
-    {
-      std::string npath = path + indices[i];
-      if((session.Response.ftype = fopen(npath.c_str(), "r")) != NULL)
-      {
-        session.Response.type = server::FILE;
-        session.ResponseStatusCode = 200;
-
-        size_t pos = indices[i].find_last_of('.');
-        if(pos == std::string::npos || npath.back() == '.')
-          session.headers["content-type"] = "text/html";
-        else
-          session.headers["content-type"] = mime_server[npath.substr(pos + 1, npath.size())].http_mime;
-
-        return true;
-      }
-    }
-
-    return false;
-  }
+  _static_handlers[regex] = addbasepath;
 }
 
 server::MimeServer mime_server(server::configuration()["mime_file"].c_str());
