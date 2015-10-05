@@ -44,8 +44,10 @@ void server::ConfigurationManager::LoadConfiguration()
   if(config["max_connected_clients"].size() == 0)
     config["max_connected_clients"] = server::toString(DEFAULT_HTTP_SERVER_MAX_CONNECTIONS);
 
+  if(config["database_path"].size() == 0)
+    config["database_path"] = DEFAULT_DATABASE_LOCATION;
+
   config.flush();
-  config.refresh();
 
   //Open the log file
   server::log.open(config["log_location"].c_str());

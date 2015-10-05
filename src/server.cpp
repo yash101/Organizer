@@ -1,4 +1,5 @@
 #include "server/server.h"
+#include <cppconn/driver.h>
 
 bool serve_other(server::HttpServerSession& session)
 {

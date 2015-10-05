@@ -55,4 +55,9 @@
 #define ENABLE_REQUEST_LOGGING_BY_DEFAULT (true)
 #endif
 
+//Database location
+#ifndef DEFAULT_DATABASE_LOCATION
+#define DEFAULT_DATABASE_LOCATION "database"
+#endif
+
 #endif // DEFAULTS_H

@@ -1,7 +1,7 @@
 #include "entry.h"
 #include "server.h"
 #include <string.h>
-#include <sys/stat.h>
+#include "../core/filesystem.h"
 
 int main(int argc, char** argv)
 {
@@ -21,11 +21,13 @@ int main(int argc, char** argv)
     }
   }
 
-#ifdef _WIN32
-  CreateDirectory("config", NULL);
-#else
-  mkdir("config", S_IRWXU | S_IRWXG | S_IROTH);
-#endif
+//#ifdef _WIN32
+//  CreateDirectory("config", NULL);
+//#else
+//  mkdir("config", S_IRWXU | S_IRWXG | S_IROTH);
+//#endif
+
+  core::create_directory("config");
 
   server::configuration.LoadConfiguration();
 
