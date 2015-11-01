@@ -1,4 +1,5 @@
 #include "filesystem.h"
+#include <stdio.h>
 #ifndef _WIN32
 #include <sys/stat.h>
 #include <unistd.h>
@@ -13,4 +14,14 @@ bool core::create_directory(const char* location)
 #else
   return mkdir(location, S_IRWXU | S_IRWXG | S_IROTH) == 0;
 #endif
+}
+
+bool core::create_file(const char* location)
+{
+  FILE* fp = fopen(location, "a+");
+  if(fp == NULL) return false;
+
+  fclose(fp);
+
+  return true;
 }

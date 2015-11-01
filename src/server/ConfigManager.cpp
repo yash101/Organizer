@@ -47,6 +47,11 @@ void server::ConfigurationManager::LoadConfiguration()
   if(config["database_path"].size() == 0)
     config["database_path"] = DEFAULT_DATABASE_LOCATION;
 
+
+  //Verification to make sure things work right
+  if(config["database_path"].back() != '/')
+    config["database_path"].append("/");
+
   config.flush();
 
   //Open the log file
